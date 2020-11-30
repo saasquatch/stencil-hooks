@@ -1,0 +1,32 @@
+{
+  "name": "@saasquatch/stencil-hooks",
+  "version": "0.0.1",
+  "description": "Stencil Component Starter",
+  "source": "src/stencil-hooks.ts",
+  "main": "build/stencil-hooks.js",
+  "module": "build/stencil-hooks.module.js",
+  "files": [
+    "build/"
+  ],
+  "scripts": {
+    "build": "microbundle",
+    "start": "stencil build --dev --watch --serve",
+    "test": "stencil test --spec --e2e",
+    "test.watch": "stencil test --spec --e2e --watchAll",
+    "generate": "stencil generate"
+  },
+  "dependencies": {
+    "@stencil/core": "^1.17.4",
+    "debug": "^4.3.1",
+    "dom-context": "0.0.4",
+    "haunted": "^4.7.1"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/puppeteer": "2.0.1",
+    "jest-cli": "26.0.1",
+    "jest-cucumber": "^3.0.0",
+    "microbundle": "^0.12.4",
+    "puppeteer": "2.1.1"
+  }
+}
