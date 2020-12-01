@@ -2,7 +2,9 @@ import { State } from 'haunted';
 import { getElement, forceUpdate } from '@stencil/core';
 import debugFactory from 'debug';
 
-const debug = debugFactory('stencil-context');
+const debug = debugFactory('stencil-hook');
+
+export * from "./stencil-context"
 
 /**
  * Set up a Stencil component's internal state so that it can use hooks.

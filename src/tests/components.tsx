@@ -1,6 +1,6 @@
 import { Component, Prop, h, Host } from '@stencil/core';
-import { ContextProvider, ListenerConnectionStatus, OnChange } from 'dom-context';
-import { useEffect, useState } from 'haunted';
+import { ContextProvider } from 'dom-context';
+import { useEffect } from 'haunted';
 import { useDomContext, useDomContextState } from '../stencil-context';
 import { withHooks } from '../stencil-hooks';
 

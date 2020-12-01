@@ -2,15 +2,15 @@ import { getElement, getRenderingRef } from '@stencil/core';
 import { HTMLStencilElement } from '@stencil/core/internal';
 import { createContext as rawCreate, ContextProvider, ContextListener, ListenerOptions } from 'dom-context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'haunted';
-import { Context } from 'haunted/lib/create-context';
+
 
 const LISTENER = Symbol('listener');
 
-export interface Constructor<T> {
+interface Constructor<T> {
   new (...args: any[]): T;
 }
 
-export type ContextHandler<T, C> = (component: C, context: T) => unknown;
+type ContextHandler<T, C> = (component: C, context: T) => unknown;
 
 export function createContext<T>(name: string, initial?: T) {
   const raw = rawCreate(name, initial);
