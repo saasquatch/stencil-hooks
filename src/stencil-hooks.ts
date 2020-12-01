@@ -17,7 +17,7 @@ export function withHooks(component: any) {
   const element = getElement(component);
   let state: State = new State(() => {
     debug('Forced update on element', element);
-    forceUpdate(component);
+    forceUpdate(element);
   }, element);
   const disconnectedCallback = component['disconnectedCallback'];
   if (!disconnectedCallback) {

@@ -27,8 +27,8 @@ describe('test-component', () => {
     //   .on('requestfailed', request => console.log(`${request.failure().errorText} ${request.url()}`));
 
     await page.setContent('<main><test-component></test-component></main>');
-    const component = await page.find('test-component > div');
-    expect(component.innerHTML).toEqualHtml(`10`);
+
+    await expectParentRenderValue(page, 10);
     const running = await page.evaluate(() => window['running']);
     expect(running).toBe(true);
     await page.evaluate(() => {
@@ -44,8 +44,23 @@ describe('test-component', () => {
 describe('stencil-context', () => {
   it('passes context down the dom', async () => {
     const page = await newE2EPage();
-    const expectProvided = async val => expect(await page.evaluate(() => window['provided'])).toBe(val);
-    const expectContextWindow = async val => expect(await page.evaluate(() => window['running2'])).toBe(val);
+    const expectProvided = async val => {
+      // Context value should be available on the window
+      const provided = await page.evaluate(() => window['provider'].context);
+      expect(provided).toBe(val);
+    };
+    const expectContextWindow = async val => {
+      const {latest, earlier} = await page.evaluate(() => {
+        // Mutates the mock -- internal state is modified here
+        var latest = window['renderValue'].calls.pop();
+        var earlier = window['renderValue'].calls;
+        return {latest, earlier}
+      });
+      // Most recent call should match
+      expect(latest).toEqual([val]);
+      // Should not have been any earlier renders
+      expect(earlier).toEqual([])
+    };
     const expectTestChild = async val => expect((await page.find('test-child')).innerHTML).toEqualHtml(`<div>${val}</div>`);
 
     // page
@@ -60,11 +75,8 @@ describe('stencil-context', () => {
      *    Listener should be listening right away
      */
     await expectProvided(10);
+    await expectParentRenderValue(page, 10);
     await expectContextWindow(10);
-
-    /*
-     *   Context should be available immediately
-     */
     await expectTestChild(10);
 
     /*
@@ -74,18 +86,25 @@ describe('stencil-context', () => {
     await incr.click();
     await page.waitForChanges();
 
-    await expectProvided(12);
-    // await expectContextWindow(12);
-    await expectTestChild(12);
+    await expectProvided(11);
+    await expectParentRenderValue(page, 11);
+    await expectContextWindow(11);
+    await expectTestChild(11);
+
     /*
-     *  Cleanup should leave nothing in the dom
+     *   Increment should increment children
      */
-    await page.evaluate(() => {
-      let dom = document.querySelector('main');
-      dom.innerHTML = 'empty';
-    });
+    await incr.click();
     await page.waitForChanges();
-    const runningAfter = await page.evaluate(() => window['running2']);
-    expect(runningAfter).toBe(false);
+
+    await expectProvided(12);
+    await expectParentRenderValue(page, 12);
+    await expectContextWindow(12);
+    await expectTestChild(12);
   });
 });
+
+async function expectParentRenderValue(page, val) {
+  const component = await page.find('test-component > div');
+  expect(component.innerHTML).toEqualHtml(`${val}`);
+}

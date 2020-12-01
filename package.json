@@ -18,7 +18,7 @@
   "dependencies": {
     "@stencil/core": "^1.17.4",
     "debug": "^4.3.1",
-    "dom-context": "0.0.4",
+    "dom-context": "0.0.5",
     "haunted": "^4.7.1"
   },
   "license": "MIT",

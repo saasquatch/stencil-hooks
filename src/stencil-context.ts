@@ -2,6 +2,7 @@ import { getElement, getRenderingRef } from '@stencil/core';
 import { HTMLStencilElement } from '@stencil/core/internal';
 import { createContext as rawCreate, ContextProvider, ContextListener, ListenerOptions } from 'dom-context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'haunted';
+import { Context } from 'haunted/lib/create-context';
 
 const LISTENER = Symbol('listener');
 
@@ -100,11 +101,12 @@ type PollingOpts<T = unknown> = Omit<ListenerOptions<T>, 'contextName' | 'elemen
 export function useDomContext<T = unknown>(contextName: string, options: PollingOpts = {}): T | undefined {
   const host = useHost();
   const contextValue = useRef(undefined);
+  const [state, setState] = useState(undefined);
 
   const { listener } = useMemo(() => {
     const onChange = (next: T) => {
-      contextValue.current = next;
-      window['running2'] = next;
+        contextValue.current = next;
+        setState(next);
     };
     const listener = new ContextListener({
       contextName,
@@ -120,12 +122,13 @@ export function useDomContext<T = unknown>(contextName: string, options: Polling
 
   useEffect(() => {
     return () => {
-      window['running2'] = false;
       listener.stop();
     };
   }, [listener]);
 
-  return contextValue.current;
+  useEffect(()=>{},[contextValue.current])
+
+  return state || contextValue.current;
 }
 
 type NewState<T> = T | ((previousState?: T) => T);
@@ -134,11 +137,10 @@ type StateUpdater<T> = (value: NewState<T>) => void;
 /**
  * Similar to `useState` except the state is shared with children
  */
-export function useDomContextState<T>(contextName: string, initialState?: T): readonly [T, StateUpdater<T>] {
+export function useDomContextState<T>(contextName: string, initialState?: T): readonly [T, StateUpdater<T>, ContextProvider<T>] {
   const host = useHost();
 
   const provider = useMemo(() => {
-    window['provided'] = initialState;
     return new ContextProvider({
       contextName: contextName,
       element: host,
@@ -153,16 +155,15 @@ export function useDomContextState<T>(contextName: string, initialState?: T): re
 
   const updater = useCallback(
     (next: NewState<T>) => {
-      let newValue;
+      let newValue:T;
       if (typeof next === 'function') {
-        newValue = (next as (n: T) => T)(provider.current);
+        newValue = (next as (n: T) => T)(provider.context);
       } else {
         newValue = next;
       }
-      window['provided'] = newValue;
-      provider.current = newValue;
+      provider.context = newValue;
     },
     [provider],
   );
-  return [provider.current, updater];
+  return [provider.context, updater, provider];
 }

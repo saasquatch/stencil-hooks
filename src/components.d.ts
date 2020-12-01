@@ -9,6 +9,7 @@ export namespace Components {
     interface TestChild {
     }
     interface TestComponent {
+        "provided": number;
         "start": number;
     }
 }
@@ -34,6 +35,7 @@ declare namespace LocalJSX {
     interface TestChild {
     }
     interface TestComponent {
+        "provided"?: number;
         "start"?: number;
     }
     interface IntrinsicElements {
