@@ -1,19 +1,20 @@
 import { State } from 'haunted';
 import { getElement, forceUpdate } from '@stencil/core';
 import debugFactory from 'debug';
+import { createContext, useDomContext, useHost, useComponent, useDomContextState } from './stencil-context';
 
 const debug = debugFactory('stencil-hook');
 
-export * from "./stencil-context"
+export { createContext, useDomContext, useHost, useComponent, useDomContextState };
 
 /**
  * Set up a Stencil component's internal state so that it can use hooks.
- * 
+ *
  * This will re-render the component when hook state changes.
- * 
+ *
  * This is still compatible with external state.
- * 
- * @param component 
+ *
+ * @param component
  */
 export function withHooks(component: any) {
   const element = getElement(component);
