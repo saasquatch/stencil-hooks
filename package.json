@@ -1,13 +1,13 @@
 {
   "name": "@saasquatch/stencil-hooks",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Stencil Component Starter",
   "source": "src/stencil-hooks.ts",
   "main": "build/stencil-hooks.js",
   "module": "build/stencil-hooks.module.js",
   "typings": "build/stencil-hooks.d.ts",
   "files": [
-    "build/stencil-hooks.d.ts"
+    "build"
   ],
   "scripts": {
     "build": "microbundle",
