@@ -25,6 +25,8 @@ export class ChildComponent {
     );
   }
 
-  disconnectedCallback() {}
+  disconnectedCallback() {
+    // required for `useEffect` cleanups to run
+  }
 }
 ```
