@@ -22,10 +22,18 @@ export function withHooks(component: any) {
     debug('Forced update on element', element);
     forceUpdate(element);
   }, element);
+
+
   const disconnectedCallback = component['disconnectedCallback'];
   if (!disconnectedCallback) {
     throw new Error("Stencil hooks requires `disconnectedCallback` to be defined (even if it's empty). This is because of how the Stencil compiler works internally");
   }
+  component['disconnectedCallback'] = function () {
+    state.teardown();
+    state = null;
+    runIfExists(disconnectedCallback);
+  };
+
   const connectedCallback = component['connectedCallback'];
   component['connectedCallback'] = function () {
     if (!state) {
@@ -37,11 +45,6 @@ export function withHooks(component: any) {
     state.update();
     runIfExists(connectedCallback);
   };
-  component['disconnectedCallback'] = function () {
-    state.teardown();
-    state = null;
-    runIfExists(disconnectedCallback);
-  };
 
   let renderFn = component['render'].bind(component);
   const newRenderFn = () => {
@@ -50,6 +53,7 @@ export function withHooks(component: any) {
     return out;
   };
   component['render'] = newRenderFn;
+  // state.update();
   return () => {};
 }
 

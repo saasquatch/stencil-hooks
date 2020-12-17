@@ -6,6 +6,8 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface StateChild {
+    }
     interface TestChild {
     }
     interface TestComponent {
@@ -14,6 +16,12 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLStateChildElement extends Components.StateChild, HTMLStencilElement {
+    }
+    var HTMLStateChildElement: {
+        prototype: HTMLStateChildElement;
+        new (): HTMLStateChildElement;
+    };
     interface HTMLTestChildElement extends Components.TestChild, HTMLStencilElement {
     }
     var HTMLTestChildElement: {
@@ -27,11 +35,14 @@ declare global {
         new (): HTMLTestComponentElement;
     };
     interface HTMLElementTagNameMap {
+        "state-child": HTMLStateChildElement;
         "test-child": HTMLTestChildElement;
         "test-component": HTMLTestComponentElement;
     }
 }
 declare namespace LocalJSX {
+    interface StateChild {
+    }
     interface TestChild {
     }
     interface TestComponent {
@@ -39,6 +50,7 @@ declare namespace LocalJSX {
         "start"?: number;
     }
     interface IntrinsicElements {
+        "state-child": StateChild;
         "test-child": TestChild;
         "test-component": TestComponent;
     }
@@ -47,6 +59,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "state-child": LocalJSX.StateChild & JSXBase.HTMLAttributes<HTMLStateChildElement>;
             "test-child": LocalJSX.TestChild & JSXBase.HTMLAttributes<HTMLTestChildElement>;
             "test-component": LocalJSX.TestComponent & JSXBase.HTMLAttributes<HTMLTestComponentElement>;
         }

@@ -1,6 +1,6 @@
 import { Component, Prop, h, Host } from '@stencil/core';
 import { ContextProvider } from 'dom-context';
-import { useEffect } from 'haunted';
+import { useEffect, useState } from 'haunted';
 import { useDomContext, useDomContextState } from '../stencil-context';
 import { withHooks } from '../stencil-hooks';
 
@@ -70,7 +70,33 @@ export class ChildComponent {
   disconnectedCallback() {}
 }
 
-function mockFunction(impl = (...args:unknown[]) => {}) {
+@Component({
+  tag: 'state-child',
+})
+export class StateChild {
+  constructor() {
+    window['renderValue'] = window['renderValue'] || mockFunction();
+    withHooks(this);
+  }
+
+  render() {
+    const [count, setCount] = useState(3);
+
+    // Logs every render
+    window['renderValue'](count);
+
+    return (
+      <Host>
+        <div>{count || 'NONE'}</div>
+        <button onClick={() => setCount(count + 1)}>+1</button>
+      </Host>
+    );
+  }
+
+  disconnectedCallback() {}
+}
+
+function mockFunction(impl = (...args: unknown[]) => {}) {
   const calls = [];
   const mock = (...args: unknown[]) => {
     calls.push(args);
