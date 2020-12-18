@@ -1,6 +1,6 @@
 import { newE2EPage } from '@stencil/core/testing';
 
-describe('test-component', () => {
+describe('effects', () => {
   it('renders', async () => {
     const page = await newE2EPage();
 
@@ -39,23 +39,22 @@ describe('test-component', () => {
     const runningAfter = await page.evaluate(() => window['running']);
     expect(runningAfter).toBe(false);
   });
-
-  it('works with state', async () => {
-    const page = await newE2EPage();
-    await page.setContent('<state-child></state-child>');
-
-    await expectParentRenderValue(page, 3, "state-child");
-    await expectRenderMockValue(page, 3);
-
-    const btn = await page.find("state-child button");
-    await btn.click();
-
-    await expectParentRenderValue(page, 4, "state-child");
-    await expectRenderMockValue(page, 4);
-  });
 });
 
+describe('hooks', () => {
+  it('works with useState', async () => {
+    await testStateFunction('state-child');
+  });
+  it('works with useReducer', async () => {
+    await testStateFunction('reducer-child');
+  });
 
+  it('works with useDomContextState', async () => {
+    await testStateFunction('domstate-child');
+  });
+
+  
+});
 
 describe('stencil-context', () => {
   it('passes context down the dom', async () => {
@@ -107,25 +106,36 @@ describe('stencil-context', () => {
     await expectRenderMockValue(page, 12);
     await expectTestChild(12);
   });
-
-
-  
 });
 
+async function testStateFunction(compName: string) {
+  const page = await newE2EPage();
+  await page.setContent(`<${compName}></${compName}>`);
+
+  await expectParentRenderValue(page, 3, compName);
+  await expectRenderMockValue(page, 3);
+
+  const btn = await page.find(`${compName} button`);
+  await btn.click();
+
+  await expectParentRenderValue(page, 4, compName);
+  await expectRenderMockValue(page, 4);
+}
+
 async function expectRenderMockValue(page, val) {
-  const {latest, earlier} = await page.evaluate(() => {
+  const { latest, earlier } = await page.evaluate(() => {
     // Mutates the mock -- internal state is modified here
     var latest = window['renderValue'].calls.pop();
     var earlier = window['renderValue'].calls;
-    return {latest, earlier}
+    return { latest, earlier };
   });
   // Most recent call should match
   expect(latest).toEqual([val]);
   // Should not have been any earlier renders
-  expect(earlier).toEqual([])
-};
+  expect(earlier).toEqual([]);
+}
 
-async function expectParentRenderValue(page, val, name:string = "test-component") {
+async function expectParentRenderValue(page, val, name: string = 'test-component') {
   const component = await page.find(name + ' > div');
   expect(component.innerHTML).toEqualHtml(`${val}`);
 }

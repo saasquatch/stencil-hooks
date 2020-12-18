@@ -6,6 +6,10 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface DomstateChild {
+    }
+    interface ReducerChild {
+    }
     interface StateChild {
     }
     interface TestChild {
@@ -16,6 +20,18 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLDomstateChildElement extends Components.DomstateChild, HTMLStencilElement {
+    }
+    var HTMLDomstateChildElement: {
+        prototype: HTMLDomstateChildElement;
+        new (): HTMLDomstateChildElement;
+    };
+    interface HTMLReducerChildElement extends Components.ReducerChild, HTMLStencilElement {
+    }
+    var HTMLReducerChildElement: {
+        prototype: HTMLReducerChildElement;
+        new (): HTMLReducerChildElement;
+    };
     interface HTMLStateChildElement extends Components.StateChild, HTMLStencilElement {
     }
     var HTMLStateChildElement: {
@@ -35,12 +51,18 @@ declare global {
         new (): HTMLTestComponentElement;
     };
     interface HTMLElementTagNameMap {
+        "domstate-child": HTMLDomstateChildElement;
+        "reducer-child": HTMLReducerChildElement;
         "state-child": HTMLStateChildElement;
         "test-child": HTMLTestChildElement;
         "test-component": HTMLTestComponentElement;
     }
 }
 declare namespace LocalJSX {
+    interface DomstateChild {
+    }
+    interface ReducerChild {
+    }
     interface StateChild {
     }
     interface TestChild {
@@ -50,6 +72,8 @@ declare namespace LocalJSX {
         "start"?: number;
     }
     interface IntrinsicElements {
+        "domstate-child": DomstateChild;
+        "reducer-child": ReducerChild;
         "state-child": StateChild;
         "test-child": TestChild;
         "test-component": TestComponent;
@@ -59,6 +83,8 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "domstate-child": LocalJSX.DomstateChild & JSXBase.HTMLAttributes<HTMLDomstateChildElement>;
+            "reducer-child": LocalJSX.ReducerChild & JSXBase.HTMLAttributes<HTMLReducerChildElement>;
             "state-child": LocalJSX.StateChild & JSXBase.HTMLAttributes<HTMLStateChildElement>;
             "test-child": LocalJSX.TestChild & JSXBase.HTMLAttributes<HTMLTestChildElement>;
             "test-component": LocalJSX.TestComponent & JSXBase.HTMLAttributes<HTMLTestComponentElement>;

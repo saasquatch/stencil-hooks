@@ -1,8 +1,6 @@
 import { Component, Prop, h, Host } from '@stencil/core';
 import { ContextProvider } from 'dom-context';
-import { useEffect, useState } from 'haunted';
-import { useDomContext, useDomContextState } from '../stencil-context';
-import { withHooks } from '../stencil-hooks';
+import { withHooks, useEffect, useState, useDomContext, useDomContextState, useReducer } from '../stencil-hooks';
 
 @Component({
   tag: 'test-component',
@@ -89,6 +87,66 @@ export class StateChild {
       <Host>
         <div>{count || 'NONE'}</div>
         <button onClick={() => setCount(count + 1)}>+1</button>
+      </Host>
+    );
+  }
+
+  disconnectedCallback() {}
+}
+
+const CountReducer = (state:number, action:"plus"|"minus")=>{
+  if(action === "plus"){
+    return state+1;
+  }else if (action === "minus"){
+    return state-1;
+  }
+};
+
+@Component({
+  tag: 'reducer-child',
+})
+export class ReducerChild {
+  constructor() {
+    window['renderValue'] = window['renderValue'] || mockFunction();
+    withHooks(this);
+  }
+
+  render() {
+    const [count, dispatch] = useReducer(CountReducer,3)
+
+    // Logs every render
+    window['renderValue'](count);
+
+    return (
+      <Host>
+        <div>{count || 'NONE'}</div>
+        <button onClick={() => dispatch("plus")}>+1</button>
+      </Host>
+    );
+  }
+
+  disconnectedCallback() {}
+}
+
+@Component({
+  tag: 'domstate-child',
+})
+export class DomStateChild {
+  constructor() {
+    window['renderValue'] = window['renderValue'] || mockFunction();
+    withHooks(this);
+  }
+
+  render() {
+    const [count, setCount] = useDomContextState("example-context", 3);
+
+    // Logs every render
+    window['renderValue'](count);
+
+    return (
+      <Host>
+        <div>{count || 'NONE'}</div>
+        <button onClick={() => setCount(count+1)}>+1</button>
       </Host>
     );
   }

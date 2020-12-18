@@ -1,8 +1,7 @@
 import { getElement, getRenderingRef } from '@stencil/core';
 import { HTMLStencilElement } from '@stencil/core/internal';
 import { createContext as rawCreate, ContextProvider, ContextListener, ListenerOptions } from 'dom-context';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'haunted';
-
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'haunted';
 
 const LISTENER = Symbol('listener');
 
@@ -105,8 +104,8 @@ export function useDomContext<T = unknown>(contextName: string, options: Polling
 
   const { listener } = useMemo(() => {
     const onChange = (next: T) => {
-        contextValue.current = next;
-        setState(next);
+      contextValue.current = next;
+      setState(next);
     };
     const listener = new ContextListener({
       contextName,
@@ -126,7 +125,7 @@ export function useDomContext<T = unknown>(contextName: string, options: Polling
     };
   }, [listener]);
 
-  useEffect(()=>{},[contextValue.current])
+  useEffect(() => {}, [contextValue.current]);
 
   return state || contextValue.current;
 }
@@ -153,17 +152,16 @@ export function useDomContextState<T>(contextName: string, initialState?: T): re
     return () => provider.stop();
   }, [provider]);
 
-  const updater = useCallback(
-    (next: NewState<T>) => {
-      let newValue:T;
-      if (typeof next === 'function') {
-        newValue = (next as (n: T) => T)(provider.context);
-      } else {
-        newValue = next;
-      }
-      provider.context = newValue;
-    },
-    [provider],
-  );
-  return [provider.context, updater, provider];
+  const [value, dispatch] = useReducer<T, T, NewState<T>>((_, next: NewState<T>) => {
+    let newValue: T;
+    if (typeof next === 'function') {
+      newValue = (next as (n: T) => T)(provider.context);
+    } else {
+      newValue = next;
+    }
+    provider.context = newValue;
+    return provider.context;
+  }, provider.context);
+
+  return [value, dispatch, provider];
 }

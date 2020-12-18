@@ -1,10 +1,14 @@
-import { State } from 'haunted';
+import { State, hook, Hook, useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'haunted';
 import { getElement, forceUpdate } from '@stencil/core';
 import debugFactory from 'debug';
 import { createContext, useDomContext, useHost, useComponent, useDomContextState } from './stencil-context';
 
 const debug = debugFactory('stencil-hook');
 
+// Re-export Haunted hooks classes
+export { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, State, hook, Hook };
+
+// Export Dom Context hooks
 export { createContext, useDomContext, useHost, useComponent, useDomContextState };
 
 /**
@@ -22,7 +26,6 @@ export function withHooks(component: any) {
     debug('Forced update on element', element);
     forceUpdate(element);
   }, element);
-
 
   const disconnectedCallback = component['disconnectedCallback'];
   if (!disconnectedCallback) {
