@@ -53,7 +53,31 @@ describe('hooks', () => {
     await testStateFunction('domstate-child');
   });
 
-  
+  it('works with useMemo', async () => {
+    const page = await newE2EPage();
+    await page.setContent(`<memo-child></memo-child>`);
+
+    await expectParentRenderValue(page, 233, 'memo-child');
+    await expectRenderMockValue(page, 233);
+    const btn = await page.find(`memo-child button`);
+    await btn.click();
+
+    await expectParentRenderValue(page, 377, 'memo-child');
+    await expectRenderMockValue(page, 377);
+  });
+
+  it('works with useRef', async () => {
+    const page = await newE2EPage();
+    await page.setContent(`<ref-child></ref-child>`);
+
+    await expectParentRenderValue(page, 'NONE', 'ref-child');
+    await expectRenderMockValue(page, 'NONE');
+    const btn = await page.find(`ref-child button`);
+    await btn.click();
+
+    await expectParentRenderValue(page, 'Span1', 'ref-child');
+    await expectRenderMockValue(page, 'Span1');
+  });
 });
 
 describe('stencil-context', () => {

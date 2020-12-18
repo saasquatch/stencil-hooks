@@ -2,16 +2,15 @@
 
 # Stencil Hooks
 
-Let's you use (haunted)[https://github.com/matthewp/haunted] hooks in your stencil component.
+Let's you use React-style hooks in your [Stencil](https://stenciljs.com/) components. Based on [haunted](https://github.com/matthewp/haunted/).
 
 ```js
-import { withHooks } from '@saasquatch/stencil-hooks';
-import { useState } from 'haunted';
+import { withHooks, useState } from '@saasquatch/stencil-hooks';
 
 @Component({
-  tag: 'test-child',
+  tag: 'my-counter',
 })
-export class ChildComponent {
+export class Counter {
   constructor() {
     withHooks(this);
   }

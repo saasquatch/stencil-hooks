@@ -6,6 +6,7 @@
   "main": "build/stencil-hooks.js",
   "module": "build/stencil-hooks.module.js",
   "typings": "build/stencil-hooks.d.ts",
+  "types": "build/stencil-hooks.d.ts",
   "files": [
     "build"
   ],

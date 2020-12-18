@@ -1,6 +1,6 @@
 import { Component, Prop, h, Host } from '@stencil/core';
 import { ContextProvider } from 'dom-context';
-import { withHooks, useEffect, useState, useDomContext, useDomContextState, useReducer } from '../stencil-hooks';
+import { withHooks, useEffect, useState, useDomContext, useDomContextState, useReducer, useMemo, useRef } from '../stencil-hooks';
 
 @Component({
   tag: 'test-component',
@@ -154,7 +154,69 @@ export class DomStateChild {
   disconnectedCallback() {}
 }
 
-function mockFunction(impl = (...args: unknown[]) => {}) {
+function fibonacci(num) {
+  if (num <= 1) return 1;
+  return fibonacci(num - 1) + fibonacci(num - 2);
+}
+
+
+@Component({
+  tag: 'memo-child',
+})
+export class MemoChild {
+  constructor() {
+    window['renderValue'] = window['renderValue'] || mockFunction();
+    withHooks(this);
+  }
+
+  render() {
+    const [value, setVal] = useState(12);
+    const fib = useMemo(() => fibonacci(value), [value]);
+  
+
+    // Logs every render
+    window['renderValue'](fib);
+
+    return (
+      <Host>
+        <div>{fib || 'NONE'}</div>
+        <button onClick={() => setVal(value+1)}>+1</button>
+      </Host>
+    );
+  }
+
+  disconnectedCallback() {}
+}
+
+
+@Component({
+  tag: 'ref-child',
+})
+export class RefChild {
+  constructor() {
+    window['renderValue'] = window['renderValue'] || mockFunction();
+    withHooks(this);
+  }
+
+  render() {
+    const [value, setValue] = useState("NONE");
+    const myRef = useRef<HTMLSpanElement>(undefined);  
+    // Logs every render
+    window['renderValue'](value);
+
+    return (
+      <Host>
+        <span ref={el=> myRef.current = el}>Span1</span>
+        <div>{value}</div>
+        <button onClick={()=>setValue(myRef.current.innerText)}></button>
+      </Host>
+    );
+  }
+
+  disconnectedCallback() {}
+}
+
+function mockFunction(impl = (..._: unknown[]) => {}) {
   const calls = [];
   const mock = (...args: unknown[]) => {
     calls.push(args);
