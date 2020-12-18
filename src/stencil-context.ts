@@ -1,7 +1,7 @@
 import { getElement, getRenderingRef } from '@stencil/core';
 import { HTMLStencilElement } from '@stencil/core/internal';
 import { createContext as rawCreate, ContextProvider, ContextListener, ListenerOptions } from 'dom-context';
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'haunted';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'haunted';
 
 const LISTENER = Symbol('listener');
 
