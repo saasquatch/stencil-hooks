@@ -1,4 +1,4 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { E2EPage, newE2EPage } from '@stencil/core/testing';
 
 describe('effects', () => {
   it('renders', async () => {
@@ -146,7 +146,7 @@ async function testStateFunction(compName: string) {
   await expectRenderMockValue(page, 4);
 }
 
-async function expectRenderMockValue(page, val) {
+async function expectRenderMockValue(page:E2EPage, ...args:unknown[]) {
   const { latest, earlier } = await page.evaluate(() => {
     // Mutates the mock -- internal state is modified here
     var latest = window['renderValue'].calls.pop();
@@ -154,12 +154,12 @@ async function expectRenderMockValue(page, val) {
     return { latest, earlier };
   });
   // Most recent call should match
-  expect(latest).toEqual([val]);
+  expect(latest).toEqual(args);
   // Should not have been any earlier renders
   expect(earlier).toEqual([]);
 }
 
-async function expectParentRenderValue(page, val, name: string = 'test-component') {
+async function expectParentRenderValue(page:E2EPage, val:unknown, name: string = 'test-component') {
   const component = await page.find(name + ' > div');
   expect(component.innerHTML).toEqualHtml(`${val}`);
 }
