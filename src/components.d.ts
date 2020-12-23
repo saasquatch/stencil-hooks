@@ -6,6 +6,8 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface CallbacksTest {
+    }
     interface DomstateChild {
     }
     interface EffectTest {
@@ -28,6 +30,12 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLCallbacksTestElement extends Components.CallbacksTest, HTMLStencilElement {
+    }
+    var HTMLCallbacksTestElement: {
+        prototype: HTMLCallbacksTestElement;
+        new (): HTMLCallbacksTestElement;
+    };
     interface HTMLDomstateChildElement extends Components.DomstateChild, HTMLStencilElement {
     }
     var HTMLDomstateChildElement: {
@@ -83,6 +91,7 @@ declare global {
         new (): HTMLTestComponentElement;
     };
     interface HTMLElementTagNameMap {
+        "callbacks-test": HTMLCallbacksTestElement;
         "domstate-child": HTMLDomstateChildElement;
         "effect-test": HTMLEffectTestElement;
         "memo-child": HTMLMemoChildElement;
@@ -95,6 +104,8 @@ declare global {
     }
 }
 declare namespace LocalJSX {
+    interface CallbacksTest {
+    }
     interface DomstateChild {
     }
     interface EffectTest {
@@ -116,6 +127,7 @@ declare namespace LocalJSX {
         "start"?: number;
     }
     interface IntrinsicElements {
+        "callbacks-test": CallbacksTest;
         "domstate-child": DomstateChild;
         "effect-test": EffectTest;
         "memo-child": MemoChild;
@@ -131,6 +143,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "callbacks-test": LocalJSX.CallbacksTest & JSXBase.HTMLAttributes<HTMLCallbacksTestElement>;
             "domstate-child": LocalJSX.DomstateChild & JSXBase.HTMLAttributes<HTMLDomstateChildElement>;
             "effect-test": LocalJSX.EffectTest & JSXBase.HTMLAttributes<HTMLEffectTestElement>;
             "memo-child": LocalJSX.MemoChild & JSXBase.HTMLAttributes<HTMLMemoChildElement>;

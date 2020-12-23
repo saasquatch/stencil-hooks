@@ -111,6 +111,23 @@ describe('hooks', () => {
     await expectParentRenderValue(page, 'Span1', 'ref-child');
     await expectRenderMockValue(page, 'Span1');
   });
+
+  it('works with useCallback', async () => {
+    const page = await newE2EPage();
+
+    await page.setContent(`<callbacks-test></callbacks-test>`);
+    await page.waitForChanges();
+
+    await (await page.find(`callbacks-test button`)).click();
+    await page.waitForChanges();
+
+    await expectCallbackMatch(page, true);
+
+    await (await page.find(`callbacks-test button`)).click();
+    await page.waitForChanges();
+    await expectCallbackMatch(page, false);
+    
+  });
 });
 
 describe('stencil-context', () => {
@@ -177,6 +194,20 @@ async function testStateFunction(compName: string) {
 
   await expectParentRenderValue(page, 4, compName);
   await expectRenderMockValue(page, 4);
+}
+
+async function expectCallbackMatch(page: E2EPage, truthy: boolean): Promise<void> {
+  const calls = await page.evaluate(() => window['mockCallback'].calls.map(c=>c[0]()));
+
+  // Mutates the mock -- internal state is modified here
+  const length = calls.length;
+  const top = calls[length - 1];
+  const nextTop = calls[length - 2];
+  if (truthy) {
+    expect(top).toStrictEqual(nextTop);
+  } else {
+    expect(top).not.toStrictEqual(nextTop);
+  }
 }
 
 async function expectRenderMockValue(page: E2EPage, ...args: unknown[]) {

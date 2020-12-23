@@ -1,6 +1,7 @@
 import { Component, Prop, h, Host } from '@stencil/core';
 import { ContextProvider } from 'dom-context';
-import { withHooks, useEffect, useState, useDomContext, useDomContextState, useReducer, useMemo, useRef } from '../stencil-hooks';
+import { useHost } from '../stencil-context';
+import { withHooks, useEffect, useState, useDomContext, useDomContextState, useReducer, useMemo, useRef, useCallback } from '../stencil-hooks';
 import { mockFunction } from './mockFunction';
 
 @Component({
@@ -247,8 +248,6 @@ export class EffectTest {
   }
 }
 
-
-
 @Component({
   tag: 'null-lifecycle-test',
 })
@@ -273,4 +272,31 @@ export class NullLifecycleTest {
   disconnectedCallback() {
     window['lifecycleCalls']('disconnectedCallback');
   }
+}
+
+@Component({
+  tag: 'callbacks-test',
+})
+export class CallbacksTest {
+  constructor() {
+    window['mockCallback'] = window['mockCallback'] || mockFunction();
+    withHooks(this);
+  }
+  render() {
+    const [count, setCount] = useState(0);
+    const triggerOn = count >= 2;
+
+    const callback = useCallback(() => count, [triggerOn]);
+    // @ts-ignore
+    window['mockCallback'](callback);
+
+    return (
+      <Host>
+        <div>{count}</div>
+        <button onClick={() => setCount(count + 1)}></button>
+      </Host>
+    );
+  }
+
+  disconnectedCallback() {}
 }
