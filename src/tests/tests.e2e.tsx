@@ -41,6 +41,39 @@ describe('effects', () => {
   });
 });
 
+describe('withHooks lifecycle', () => {
+  it('still calls disconnectedCallback after useEffect cleanups', async () => {
+    const page = await newE2EPage();
+    await page.setContent('<main><effect-test></effect-test></main>');
+    const callsAfterRender = await page.evaluate(() => window['lifecycleCalls'].calls.map(a => a[0]));
+    const component = await page.find('effect-test');
+    expect(component.innerHTML).toEqualHtml(`<div>true</div>`);
+
+    expect(callsAfterRender).toEqual(['connectedCallback', 'render', 'useEffect']);
+    await page.evaluate(() => {
+      let dom = document.querySelector('main');
+      dom.innerHTML = 'empty';
+    });
+    const callsAfterCleanp = await page.evaluate(() => window['lifecycleCalls'].calls.map(a => a[0]));
+    expect(callsAfterCleanp).toEqual(['connectedCallback', 'render', 'useEffect', 'useEffectCleanup', 'disconnectedCallback']);
+  });
+  it('still calls disconnectedCallback without useEffect cleanup', async () => {
+    const page = await newE2EPage();
+    await page.setContent('<main><null-lifecycle-test></null-lifecycle-test></main>');
+    const callsAfterRender = await page.evaluate(() => window['lifecycleCalls'].calls.map(a => a[0]));
+    const component = await page.find('null-lifecycle-test');
+    expect(component.innerHTML).toEqualHtml(`<div>true</div>`);
+
+    expect(callsAfterRender).toEqual(['connectedCallback', 'render']);
+    await page.evaluate(() => {
+      let dom = document.querySelector('main');
+      dom.innerHTML = 'empty';
+    });
+    const callsAfterCleanp = await page.evaluate(() => window['lifecycleCalls'].calls.map(a => a[0]));
+    expect(callsAfterCleanp).toEqual(['connectedCallback', 'render', 'disconnectedCallback']);
+  });
+});
+
 describe('hooks', () => {
   it('works with useState', async () => {
     await testStateFunction('state-child');
@@ -146,7 +179,7 @@ async function testStateFunction(compName: string) {
   await expectRenderMockValue(page, 4);
 }
 
-async function expectRenderMockValue(page:E2EPage, ...args:unknown[]) {
+async function expectRenderMockValue(page: E2EPage, ...args: unknown[]) {
   const { latest, earlier } = await page.evaluate(() => {
     // Mutates the mock -- internal state is modified here
     var latest = window['renderValue'].calls.pop();
@@ -159,7 +192,7 @@ async function expectRenderMockValue(page:E2EPage, ...args:unknown[]) {
   expect(earlier).toEqual([]);
 }
 
-async function expectParentRenderValue(page:E2EPage, val:unknown, name: string = 'test-component') {
+async function expectParentRenderValue(page: E2EPage, val: unknown, name: string = 'test-component') {
   const component = await page.find(name + ' > div');
   expect(component.innerHTML).toEqualHtml(`${val}`);
 }

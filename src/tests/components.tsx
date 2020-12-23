@@ -1,6 +1,7 @@
 import { Component, Prop, h, Host } from '@stencil/core';
 import { ContextProvider } from 'dom-context';
 import { withHooks, useEffect, useState, useDomContext, useDomContextState, useReducer, useMemo, useRef } from '../stencil-hooks';
+import { mockFunction } from './mockFunction';
 
 @Component({
   tag: 'test-component',
@@ -94,11 +95,11 @@ export class StateChild {
   disconnectedCallback() {}
 }
 
-const CountReducer = (state:number, action:"plus"|"minus")=>{
-  if(action === "plus"){
-    return state+1;
-  }else if (action === "minus"){
-    return state-1;
+const CountReducer = (state: number, action: 'plus' | 'minus') => {
+  if (action === 'plus') {
+    return state + 1;
+  } else if (action === 'minus') {
+    return state - 1;
   }
 };
 
@@ -112,7 +113,7 @@ export class ReducerChild {
   }
 
   render() {
-    const [count, dispatch] = useReducer(CountReducer,3)
+    const [count, dispatch] = useReducer(CountReducer, 3);
 
     // Logs every render
     window['renderValue'](count);
@@ -120,7 +121,7 @@ export class ReducerChild {
     return (
       <Host>
         <div>{count || 'NONE'}</div>
-        <button onClick={() => dispatch("plus")}>+1</button>
+        <button onClick={() => dispatch('plus')}>+1</button>
       </Host>
     );
   }
@@ -138,7 +139,7 @@ export class DomStateChild {
   }
 
   render() {
-    const [count, setCount] = useDomContextState("example-context", 3);
+    const [count, setCount] = useDomContextState('example-context', 3);
 
     // Logs every render
     window['renderValue'](count);
@@ -146,7 +147,7 @@ export class DomStateChild {
     return (
       <Host>
         <div>{count || 'NONE'}</div>
-        <button onClick={() => setCount(count+1)}>+1</button>
+        <button onClick={() => setCount(count + 1)}>+1</button>
       </Host>
     );
   }
@@ -158,7 +159,6 @@ function fibonacci(num) {
   if (num <= 1) return 1;
   return fibonacci(num - 1) + fibonacci(num - 2);
 }
-
 
 @Component({
   tag: 'memo-child',
@@ -172,7 +172,6 @@ export class MemoChild {
   render() {
     const [value, setVal] = useState(12);
     const fib = useMemo(() => fibonacci(value), [value]);
-  
 
     // Logs every render
     window['renderValue'](fib);
@@ -180,14 +179,13 @@ export class MemoChild {
     return (
       <Host>
         <div>{fib || 'NONE'}</div>
-        <button onClick={() => setVal(value+1)}>+1</button>
+        <button onClick={() => setVal(value + 1)}>+1</button>
       </Host>
     );
   }
 
   disconnectedCallback() {}
 }
-
 
 @Component({
   tag: 'ref-child',
@@ -199,16 +197,16 @@ export class RefChild {
   }
 
   render() {
-    const [value, setValue] = useState("NONE");
-    const myRef = useRef<HTMLSpanElement>(undefined);  
+    const [value, setValue] = useState('NONE');
+    const myRef = useRef<HTMLSpanElement>(undefined);
     // Logs every render
     window['renderValue'](value);
 
     return (
       <Host>
-        <span ref={el=> myRef.current = el}>Span1</span>
+        <span ref={el => (myRef.current = el)}>Span1</span>
         <div>{value}</div>
-        <button onClick={()=>setValue(myRef.current.innerText)}></button>
+        <button onClick={() => setValue(myRef.current.innerText)}></button>
       </Host>
     );
   }
@@ -216,12 +214,63 @@ export class RefChild {
   disconnectedCallback() {}
 }
 
-function mockFunction(impl = (..._: unknown[]) => {}) {
-  const calls = [];
-  const mock = (...args: unknown[]) => {
-    calls.push(args);
-    return impl(...args);
-  };
-  mock.calls = calls;
-  return mock;
+@Component({
+  tag: 'effect-test',
+})
+export class EffectTest {
+  constructor() {
+    window['lifecycleCalls'] = window['lifecycleCalls'] || mockFunction();
+    withHooks(this);
+  }
+  render() {
+    useEffect(() => {
+      window['lifecycleCalls']('useEffect');
+      return () => {
+        window['lifecycleCalls']('useEffectCleanup');
+      };
+    }, []);
+
+    window['lifecycleCalls']('render');
+
+    return (
+      <Host>
+        <div>true</div>
+      </Host>
+    );
+  }
+  connectedCallback() {
+    window['lifecycleCalls']('connectedCallback');
+  }
+
+  disconnectedCallback() {
+    window['lifecycleCalls']('disconnectedCallback');
+  }
+}
+
+
+
+@Component({
+  tag: 'null-lifecycle-test',
+})
+export class NullLifecycleTest {
+  constructor() {
+    window['lifecycleCalls'] = window['lifecycleCalls'] || mockFunction();
+    withHooks(this);
+  }
+  render() {
+    window['lifecycleCalls']('render');
+
+    return (
+      <Host>
+        <div>true</div>
+      </Host>
+    );
+  }
+  connectedCallback() {
+    window['lifecycleCalls']('connectedCallback');
+  }
+
+  disconnectedCallback() {
+    window['lifecycleCalls']('disconnectedCallback');
+  }
 }

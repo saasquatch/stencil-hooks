@@ -8,7 +8,11 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     interface DomstateChild {
     }
+    interface EffectTest {
+    }
     interface MemoChild {
+    }
+    interface NullLifecycleTest {
     }
     interface ReducerChild {
     }
@@ -30,11 +34,23 @@ declare global {
         prototype: HTMLDomstateChildElement;
         new (): HTMLDomstateChildElement;
     };
+    interface HTMLEffectTestElement extends Components.EffectTest, HTMLStencilElement {
+    }
+    var HTMLEffectTestElement: {
+        prototype: HTMLEffectTestElement;
+        new (): HTMLEffectTestElement;
+    };
     interface HTMLMemoChildElement extends Components.MemoChild, HTMLStencilElement {
     }
     var HTMLMemoChildElement: {
         prototype: HTMLMemoChildElement;
         new (): HTMLMemoChildElement;
+    };
+    interface HTMLNullLifecycleTestElement extends Components.NullLifecycleTest, HTMLStencilElement {
+    }
+    var HTMLNullLifecycleTestElement: {
+        prototype: HTMLNullLifecycleTestElement;
+        new (): HTMLNullLifecycleTestElement;
     };
     interface HTMLReducerChildElement extends Components.ReducerChild, HTMLStencilElement {
     }
@@ -68,7 +84,9 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "domstate-child": HTMLDomstateChildElement;
+        "effect-test": HTMLEffectTestElement;
         "memo-child": HTMLMemoChildElement;
+        "null-lifecycle-test": HTMLNullLifecycleTestElement;
         "reducer-child": HTMLReducerChildElement;
         "ref-child": HTMLRefChildElement;
         "state-child": HTMLStateChildElement;
@@ -79,7 +97,11 @@ declare global {
 declare namespace LocalJSX {
     interface DomstateChild {
     }
+    interface EffectTest {
+    }
     interface MemoChild {
+    }
+    interface NullLifecycleTest {
     }
     interface ReducerChild {
     }
@@ -95,7 +117,9 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "domstate-child": DomstateChild;
+        "effect-test": EffectTest;
         "memo-child": MemoChild;
+        "null-lifecycle-test": NullLifecycleTest;
         "reducer-child": ReducerChild;
         "ref-child": RefChild;
         "state-child": StateChild;
@@ -108,7 +132,9 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "domstate-child": LocalJSX.DomstateChild & JSXBase.HTMLAttributes<HTMLDomstateChildElement>;
+            "effect-test": LocalJSX.EffectTest & JSXBase.HTMLAttributes<HTMLEffectTestElement>;
             "memo-child": LocalJSX.MemoChild & JSXBase.HTMLAttributes<HTMLMemoChildElement>;
+            "null-lifecycle-test": LocalJSX.NullLifecycleTest & JSXBase.HTMLAttributes<HTMLNullLifecycleTestElement>;
             "reducer-child": LocalJSX.ReducerChild & JSXBase.HTMLAttributes<HTMLReducerChildElement>;
             "ref-child": LocalJSX.RefChild & JSXBase.HTMLAttributes<HTMLRefChildElement>;
             "state-child": LocalJSX.StateChild & JSXBase.HTMLAttributes<HTMLStateChildElement>;
