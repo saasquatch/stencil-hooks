@@ -67,7 +67,7 @@ export function createContext<T>(name: string, initial?: T) {
   }
 
   const useContext = (options?: PollingOpts) => useDomContext<T>(name, options);
-  const useContextState = () => useDomContextState<T>(name, initial);
+  const useContextState = (initialState?:T) => useDomContextState<T>(name, initialState || initial);
 
   const stencil = {
     ...raw,

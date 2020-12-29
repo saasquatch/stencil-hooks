@@ -1,6 +1,6 @@
 {
   "name": "@saasquatch/stencil-hooks",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Stencil Component Starter",
   "source": "src/stencil-hooks.ts",
   "main": "build/stencil-hooks.js",
