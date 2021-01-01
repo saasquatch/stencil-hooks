@@ -22,6 +22,8 @@ export namespace Components {
     }
     interface StateChild {
     }
+    interface StateEffectChild {
+    }
     interface TestChild {
     }
     interface TestComponent {
@@ -78,6 +80,12 @@ declare global {
         prototype: HTMLStateChildElement;
         new (): HTMLStateChildElement;
     };
+    interface HTMLStateEffectChildElement extends Components.StateEffectChild, HTMLStencilElement {
+    }
+    var HTMLStateEffectChildElement: {
+        prototype: HTMLStateEffectChildElement;
+        new (): HTMLStateEffectChildElement;
+    };
     interface HTMLTestChildElement extends Components.TestChild, HTMLStencilElement {
     }
     var HTMLTestChildElement: {
@@ -99,6 +107,7 @@ declare global {
         "reducer-child": HTMLReducerChildElement;
         "ref-child": HTMLRefChildElement;
         "state-child": HTMLStateChildElement;
+        "state-effect-child": HTMLStateEffectChildElement;
         "test-child": HTMLTestChildElement;
         "test-component": HTMLTestComponentElement;
     }
@@ -120,6 +129,8 @@ declare namespace LocalJSX {
     }
     interface StateChild {
     }
+    interface StateEffectChild {
+    }
     interface TestChild {
     }
     interface TestComponent {
@@ -135,6 +146,7 @@ declare namespace LocalJSX {
         "reducer-child": ReducerChild;
         "ref-child": RefChild;
         "state-child": StateChild;
+        "state-effect-child": StateEffectChild;
         "test-child": TestChild;
         "test-component": TestComponent;
     }
@@ -151,6 +163,7 @@ declare module "@stencil/core" {
             "reducer-child": LocalJSX.ReducerChild & JSXBase.HTMLAttributes<HTMLReducerChildElement>;
             "ref-child": LocalJSX.RefChild & JSXBase.HTMLAttributes<HTMLRefChildElement>;
             "state-child": LocalJSX.StateChild & JSXBase.HTMLAttributes<HTMLStateChildElement>;
+            "state-effect-child": LocalJSX.StateEffectChild & JSXBase.HTMLAttributes<HTMLStateEffectChildElement>;
             "test-child": LocalJSX.TestChild & JSXBase.HTMLAttributes<HTMLTestChildElement>;
             "test-component": LocalJSX.TestComponent & JSXBase.HTMLAttributes<HTMLTestComponentElement>;
         }

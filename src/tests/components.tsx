@@ -1,6 +1,5 @@
-import { Component, Prop, h, Host } from '@stencil/core';
+import { Component, Prop, h, Host, getElement } from '@stencil/core';
 import { ContextProvider } from 'dom-context';
-import { useHost } from '../stencil-context';
 import { withHooks, useEffect, useState, useDomContext, useDomContextState, useReducer, useMemo, useRef, useCallback } from '../stencil-hooks';
 import { mockFunction } from './mockFunction';
 
@@ -35,7 +34,6 @@ export class TestComponent {
       window['provided'] = next;
       this.provided = next;
     };
-    const decr = () => setCount(count - 1);
     return (
       <Host>
         <div>{count}</div>
@@ -89,6 +87,39 @@ export class StateChild {
       <Host>
         <div>{count || 'NONE'}</div>
         <button onClick={() => setCount(count + 1)}>+1</button>
+      </Host>
+    );
+  }
+
+  disconnectedCallback() {}
+}
+
+@Component({
+  tag: 'state-effect-child',
+})
+export class StateEffectChild {
+  constructor() {
+    window['renderValue'] = window['renderValue'] || mockFunction();
+    withHooks(this);
+  }
+
+  render() {
+    const [trigger, setTrigger] = useState(false);
+    const [count, setCount] = useState(3);
+
+    // Logs every render
+    window['renderValue'](count);
+
+    useEffect(() => {
+      if (trigger) {
+        setCount(4)
+      }
+    }, [trigger]);
+
+    return (
+      <Host>
+        <div>{count || 'NONE'}</div>
+        <button onClick={() => setTrigger(true)}>+1</button>
       </Host>
     );
   }

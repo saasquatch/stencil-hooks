@@ -23,8 +23,11 @@ export { createContext, useDomContext, useHost, useComponent, useDomContextState
 export function withHooks(component: any) {
   const element = getElement(component);
   let state: State = new State(() => {
-    debug('Forced update on element', element);
-    forceUpdate(element);
+    debug('Queue update on element', element);
+    Promise.resolve().then(()=>{
+      debug('Forced update on element', element);
+      forceUpdate(element);
+    })
   }, element);
 
   const disconnectedCallback = component['disconnectedCallback'];

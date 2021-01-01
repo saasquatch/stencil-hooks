@@ -78,6 +78,20 @@ describe('hooks', () => {
   it('works with useState', async () => {
     await testStateFunction('state-child');
   });
+  it('works with useState inside useEffect', async () => {
+    const compName = 'state-effect-child';
+    const page = await newE2EPage();
+    await page.setContent(`<${compName}></${compName}>`);
+
+    await expectParentRenderValue(page, 3, compName);
+    await expectRenderMockValue(page, 3);
+
+    const btn = await page.find(`${compName} button`);
+    await btn.click();
+
+    await expectParentRenderValue(page, 4, compName);
+    await expectLatestRenderMockValue(page, 4);
+  });
   it('works with useReducer', async () => {
     await testStateFunction('reducer-child');
   });
@@ -126,7 +140,6 @@ describe('hooks', () => {
     await (await page.find(`callbacks-test button`)).click();
     await page.waitForChanges();
     await expectCallbackMatch(page, false);
-    
   });
 });
 
@@ -154,7 +167,7 @@ describe('stencil-context', () => {
      */
     await expectProvided(10);
     await expectParentRenderValue(page, 10);
-    await expectRenderMockValue(page, 10);
+    await expectLatestRenderMockValue(page, 10);
     await expectTestChild(10);
 
     /*
@@ -166,7 +179,7 @@ describe('stencil-context', () => {
 
     await expectProvided(11);
     await expectParentRenderValue(page, 11);
-    await expectRenderMockValue(page, 11);
+    await expectLatestRenderMockValue(page, 11);
     await expectTestChild(11);
 
     /*
@@ -177,7 +190,7 @@ describe('stencil-context', () => {
 
     await expectProvided(12);
     await expectParentRenderValue(page, 12);
-    await expectRenderMockValue(page, 12);
+    await expectLatestRenderMockValue(page, 12);
     await expectTestChild(12);
   });
 });
@@ -197,7 +210,7 @@ async function testStateFunction(compName: string) {
 }
 
 async function expectCallbackMatch(page: E2EPage, truthy: boolean): Promise<void> {
-  const calls = await page.evaluate(() => window['mockCallback'].calls.map(c=>c[0]()));
+  const calls = await page.evaluate(() => window['mockCallback'].calls.map(c => c[0]()));
 
   // Mutates the mock -- internal state is modified here
   const length = calls.length;
@@ -208,6 +221,15 @@ async function expectCallbackMatch(page: E2EPage, truthy: boolean): Promise<void
   } else {
     expect(top).not.toStrictEqual(nextTop);
   }
+}
+
+async function expectLatestRenderMockValue(page: E2EPage, ...args: unknown[]) {
+  const latest = await page.evaluate(() => {
+    var latest = window['renderValue'].calls[window['renderValue'].calls.length - 1];
+    return latest;
+  });
+  // Most recent call should match
+  expect(latest).toEqual(args);
 }
 
 async function expectRenderMockValue(page: E2EPage, ...args: unknown[]) {

@@ -1,7 +1,9 @@
 import { getElement, getRenderingRef } from '@stencil/core';
 import { HTMLStencilElement } from '@stencil/core/internal';
-import { createContext as rawCreate, ContextProvider, ContextListener, ListenerOptions } from 'dom-context';
+import { createContext as rawCreate, ContextProvider, ContextListener, ListenerOptions, ListenerConnectionStatus } from 'dom-context';
 import { useEffect, useMemo, useReducer, useRef, useState } from 'haunted';
+import debugFactory from 'debug';
+const debug = debugFactory('stencil-hook');
 
 const LISTENER = Symbol('listener');
 
@@ -19,14 +21,14 @@ export function createContext<T>(name: string, initial?: T) {
     const { componentWillLoad, disconnectedCallback } = ComponentPrototype;
 
     ComponentPrototype.componentWillLoad = function () {
-      console.log('Consumer load');
       const element = getElement(this);
+      debug('Component will load', element);
       const onChange = (val: T) => handler(this, val);
 
       const listener = new raw.Listener({
         element,
         onChange,
-        onStatus: st => console.log('Status', st),
+        onStatus: st => debug('context status', st),
       });
       this[LISTENER] = listener;
       listener.start();
@@ -67,7 +69,7 @@ export function createContext<T>(name: string, initial?: T) {
   }
 
   const useContext = (options?: PollingOpts) => useDomContext<T>(name, options);
-  const useContextState = (initialState?:T) => useDomContextState<T>(name, initialState || initial);
+  const useContextState = (initialState?: T) => useDomContextState<T>(name, initialState || initial);
 
   const stencil = {
     ...raw,
@@ -90,6 +92,19 @@ export function useHost(): HTMLStencilElement {
 
 type PollingOpts<T = unknown> = Omit<ListenerOptions<T>, 'contextName' | 'element' | 'onChange'>;
 
+type LisState<T> = {
+  listener?: ContextListener<T>;
+  value?: T;
+};
+function reducer<T>(state: LisState<T>, next: T): LisState<T> {
+  if (state.value !== next) {
+    return {
+      listener: state.listener,
+      value: next,
+    };
+  }
+  return state;
+}
 /**
  * Uses the parent context, if it exists. Similar to React's `useContext`
  *
@@ -99,12 +114,50 @@ type PollingOpts<T = unknown> = Omit<ListenerOptions<T>, 'contextName' | 'elemen
  */
 export function useDomContext<T = unknown>(contextName: string, options: PollingOpts = {}): T | undefined {
   const host = useHost();
-  const contextValue = useRef(undefined);
+
+  // const [{ value, listener }, dispatch] = useReducer<LisState<T>, LisState<T>, T>(reducer, undefined, () => {
+  //   // Captures synchronous initial value
+  //   let initial: T;
+
+  //   const onChange = (next: T) => {
+  //     initial = next;
+  //     dispatch && dispatch(next);
+  //   };
+  //   const listener = new ContextListener({
+  //     contextName,
+  //     element: host,
+  //     onChange,
+  //     ...options,
+  //   });
+  //   listener.start();
+
+  //   switch (listener.status) {
+  //     case ListenerConnectionStatus.CONNECTED:
+  //       return {
+  //         listener,
+  //         value: initial,
+  //       };
+  //     case ListenerConnectionStatus.CONNECTING:
+  //       return {
+  //         listener,
+  //         value: undefined,
+  //       };
+  //     case ListenerConnectionStatus.INITIAL:
+  //       throw new Error('Invalid state -- listener should already be started');
+  //     case ListenerConnectionStatus.TIMEOUT:
+  //       // TODO: Should components need this error state surfaced?
+  //       return {
+  //         listener,
+  //         value: undefined,
+  //       };
+  //   }
+  // });
+  const initialContextValue = useRef(undefined);
   const [state, setState] = useState(undefined);
 
   const { listener } = useMemo(() => {
     const onChange = (next: T) => {
-      contextValue.current = next;
+      initialContextValue.current = next;
       setState(next);
     };
     const listener = new ContextListener({
@@ -117,7 +170,7 @@ export function useDomContext<T = unknown>(contextName: string, options: Polling
     return {
       listener,
     };
-  }, [contextName, contextValue]);
+  }, [contextName, initialContextValue]);
 
   useEffect(() => {
     return () => {
@@ -125,9 +178,7 @@ export function useDomContext<T = unknown>(contextName: string, options: Polling
     };
   }, [listener]);
 
-  useEffect(() => {}, [contextValue.current]);
-
-  return state || contextValue.current;
+  return state || initialContextValue.current;
 }
 
 type NewState<T> = T | ((previousState?: T) => T);
