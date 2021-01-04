@@ -22,10 +22,14 @@ export { createContext, useDomContext, useHost, useComponent, useDomContextState
  */
 export function withHooks(component: any) {
   const element = getElement(component);
+  let queued = false;
   let state: State = new State(() => {
     debug('Queue update on element', element);
+    if(queued) return;
+    queued = true;
     Promise.resolve().then(()=>{
       debug('Forced update on element', element);
+      queued = false;
       forceUpdate(element);
     })
   }, element);
