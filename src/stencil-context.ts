@@ -1,6 +1,6 @@
 import { getElement, getRenderingRef } from '@stencil/core';
 import { HTMLStencilElement } from '@stencil/core/internal';
-import { createContext as rawCreate, ContextProvider, ContextListener, ListenerOptions, ListenerConnectionStatus } from 'dom-context';
+import { createContext as rawCreate, ContextProvider, ContextListener, ListenerOptions } from 'dom-context';
 import { useEffect, useMemo, useReducer, useRef, useState } from 'haunted';
 import debugFactory from 'debug';
 const debug = debugFactory('stencil-hook');
@@ -22,13 +22,12 @@ export function createContext<T>(name: string, initial?: T) {
 
     ComponentPrototype.componentWillLoad = function () {
       const element = getElement(this);
-      debug('Component will load', element);
       const onChange = (val: T) => handler(this, val);
 
       const listener = new raw.Listener({
         element,
         onChange,
-        onStatus: st => debug('context status', st),
+        onStatus: st => debug('Context status update', st, element),
       });
       this[LISTENER] = listener;
       listener.start();
@@ -36,7 +35,6 @@ export function createContext<T>(name: string, initial?: T) {
       componentWillLoad && componentWillLoad.call(this);
     };
     ComponentPrototype.disconnectedCallback = function () {
-      console.log('Disconnected Consumer');
       this[LISTENER] && this[LISTENER].stop();
       disconnectedCallback && disconnectedCallback.call(this);
     };
@@ -59,7 +57,6 @@ export function createContext<T>(name: string, initial?: T) {
 
     const disconnectedCallback = component['disconnectedCallback'];
     component['disconnectedCallback'] = function () {
-      console.log('Provider stop');
       provider.stop();
       if (disconnectedCallback) {
         disconnectedCallback.call(component);
@@ -92,19 +89,6 @@ export function useHost(): HTMLStencilElement {
 
 type PollingOpts<T = unknown> = Omit<ListenerOptions<T>, 'contextName' | 'element' | 'onChange'>;
 
-type LisState<T> = {
-  listener?: ContextListener<T>;
-  value?: T;
-};
-function reducer<T>(state: LisState<T>, next: T): LisState<T> {
-  if (state.value !== next) {
-    return {
-      listener: state.listener,
-      value: next,
-    };
-  }
-  return state;
-}
 /**
  * Uses the parent context, if it exists. Similar to React's `useContext`
  *
@@ -114,44 +98,6 @@ function reducer<T>(state: LisState<T>, next: T): LisState<T> {
  */
 export function useDomContext<T = unknown>(contextName: string, options: PollingOpts = {}): T | undefined {
   const host = useHost();
-
-  // const [{ value, listener }, dispatch] = useReducer<LisState<T>, LisState<T>, T>(reducer, undefined, () => {
-  //   // Captures synchronous initial value
-  //   let initial: T;
-
-  //   const onChange = (next: T) => {
-  //     initial = next;
-  //     dispatch && dispatch(next);
-  //   };
-  //   const listener = new ContextListener({
-  //     contextName,
-  //     element: host,
-  //     onChange,
-  //     ...options,
-  //   });
-  //   listener.start();
-
-  //   switch (listener.status) {
-  //     case ListenerConnectionStatus.CONNECTED:
-  //       return {
-  //         listener,
-  //         value: initial,
-  //       };
-  //     case ListenerConnectionStatus.CONNECTING:
-  //       return {
-  //         listener,
-  //         value: undefined,
-  //       };
-  //     case ListenerConnectionStatus.INITIAL:
-  //       throw new Error('Invalid state -- listener should already be started');
-  //     case ListenerConnectionStatus.TIMEOUT:
-  //       // TODO: Should components need this error state surfaced?
-  //       return {
-  //         listener,
-  //         value: undefined,
-  //       };
-  //   }
-  // });
   const initialContextValue = useRef(undefined);
   const [state, setState] = useState(undefined);
 
