@@ -1,8 +1,9 @@
 import { getElement, getRenderingRef } from '@stencil/core';
 import { HTMLStencilElement } from '@stencil/core/internal';
 import { createContext as rawCreate, ContextProvider, ContextListener, ListenerOptions } from 'dom-context';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'haunted';
-
+import { useEffect, useMemo, useReducer, useRef, useState } from 'haunted';
+import debugFactory from 'debug';
+const debug = debugFactory('stencil-hook');
 
 const LISTENER = Symbol('listener');
 
@@ -20,14 +21,13 @@ export function createContext<T>(name: string, initial?: T) {
     const { componentWillLoad, disconnectedCallback } = ComponentPrototype;
 
     ComponentPrototype.componentWillLoad = function () {
-      console.log('Consumer load');
       const element = getElement(this);
       const onChange = (val: T) => handler(this, val);
 
       const listener = new raw.Listener({
         element,
         onChange,
-        onStatus: st => console.log('Status', st),
+        onStatus: st => debug('Context status update', st, element),
       });
       this[LISTENER] = listener;
       listener.start();
@@ -35,7 +35,6 @@ export function createContext<T>(name: string, initial?: T) {
       componentWillLoad && componentWillLoad.call(this);
     };
     ComponentPrototype.disconnectedCallback = function () {
-      console.log('Disconnected Consumer');
       this[LISTENER] && this[LISTENER].stop();
       disconnectedCallback && disconnectedCallback.call(this);
     };
@@ -58,7 +57,6 @@ export function createContext<T>(name: string, initial?: T) {
 
     const disconnectedCallback = component['disconnectedCallback'];
     component['disconnectedCallback'] = function () {
-      console.log('Provider stop');
       provider.stop();
       if (disconnectedCallback) {
         disconnectedCallback.call(component);
@@ -68,7 +66,7 @@ export function createContext<T>(name: string, initial?: T) {
   }
 
   const useContext = (options?: PollingOpts) => useDomContext<T>(name, options);
-  const useContextState = () => useDomContextState<T>(name, initial);
+  const useContextState = (initialState?: T) => useDomContextState<T>(name, initialState || initial);
 
   const stencil = {
     ...raw,
@@ -100,13 +98,13 @@ type PollingOpts<T = unknown> = Omit<ListenerOptions<T>, 'contextName' | 'elemen
  */
 export function useDomContext<T = unknown>(contextName: string, options: PollingOpts = {}): T | undefined {
   const host = useHost();
-  const contextValue = useRef(undefined);
+  const initialContextValue = useRef(undefined);
   const [state, setState] = useState(undefined);
 
   const { listener } = useMemo(() => {
     const onChange = (next: T) => {
-        contextValue.current = next;
-        setState(next);
+      initialContextValue.current = next;
+      setState(next);
     };
     const listener = new ContextListener({
       contextName,
@@ -118,7 +116,7 @@ export function useDomContext<T = unknown>(contextName: string, options: Polling
     return {
       listener,
     };
-  }, [contextName, contextValue]);
+  }, [contextName, initialContextValue]);
 
   useEffect(() => {
     return () => {
@@ -126,9 +124,7 @@ export function useDomContext<T = unknown>(contextName: string, options: Polling
     };
   }, [listener]);
 
-  useEffect(()=>{},[contextValue.current])
-
-  return state || contextValue.current;
+  return state || initialContextValue.current;
 }
 
 type NewState<T> = T | ((previousState?: T) => T);
@@ -153,17 +149,16 @@ export function useDomContextState<T>(contextName: string, initialState?: T): re
     return () => provider.stop();
   }, [provider]);
 
-  const updater = useCallback(
-    (next: NewState<T>) => {
-      let newValue:T;
-      if (typeof next === 'function') {
-        newValue = (next as (n: T) => T)(provider.context);
-      } else {
-        newValue = next;
-      }
-      provider.context = newValue;
-    },
-    [provider],
-  );
-  return [provider.context, updater, provider];
+  const [value, dispatch] = useReducer<T, T, NewState<T>>((_, next: NewState<T>) => {
+    let newValue: T;
+    if (typeof next === 'function') {
+      newValue = (next as (n: T) => T)(provider.context);
+    } else {
+      newValue = next;
+    }
+    provider.context = newValue;
+    return provider.context;
+  }, provider.context);
+
+  return [value, dispatch, provider];
 }

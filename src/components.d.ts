@@ -6,6 +6,24 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface CallbacksTest {
+    }
+    interface DomstateChild {
+    }
+    interface EffectTest {
+    }
+    interface MemoChild {
+    }
+    interface NullLifecycleTest {
+    }
+    interface ReducerChild {
+    }
+    interface RefChild {
+    }
+    interface StateChild {
+    }
+    interface StateEffectChild {
+    }
     interface TestChild {
     }
     interface TestComponent {
@@ -14,6 +32,60 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLCallbacksTestElement extends Components.CallbacksTest, HTMLStencilElement {
+    }
+    var HTMLCallbacksTestElement: {
+        prototype: HTMLCallbacksTestElement;
+        new (): HTMLCallbacksTestElement;
+    };
+    interface HTMLDomstateChildElement extends Components.DomstateChild, HTMLStencilElement {
+    }
+    var HTMLDomstateChildElement: {
+        prototype: HTMLDomstateChildElement;
+        new (): HTMLDomstateChildElement;
+    };
+    interface HTMLEffectTestElement extends Components.EffectTest, HTMLStencilElement {
+    }
+    var HTMLEffectTestElement: {
+        prototype: HTMLEffectTestElement;
+        new (): HTMLEffectTestElement;
+    };
+    interface HTMLMemoChildElement extends Components.MemoChild, HTMLStencilElement {
+    }
+    var HTMLMemoChildElement: {
+        prototype: HTMLMemoChildElement;
+        new (): HTMLMemoChildElement;
+    };
+    interface HTMLNullLifecycleTestElement extends Components.NullLifecycleTest, HTMLStencilElement {
+    }
+    var HTMLNullLifecycleTestElement: {
+        prototype: HTMLNullLifecycleTestElement;
+        new (): HTMLNullLifecycleTestElement;
+    };
+    interface HTMLReducerChildElement extends Components.ReducerChild, HTMLStencilElement {
+    }
+    var HTMLReducerChildElement: {
+        prototype: HTMLReducerChildElement;
+        new (): HTMLReducerChildElement;
+    };
+    interface HTMLRefChildElement extends Components.RefChild, HTMLStencilElement {
+    }
+    var HTMLRefChildElement: {
+        prototype: HTMLRefChildElement;
+        new (): HTMLRefChildElement;
+    };
+    interface HTMLStateChildElement extends Components.StateChild, HTMLStencilElement {
+    }
+    var HTMLStateChildElement: {
+        prototype: HTMLStateChildElement;
+        new (): HTMLStateChildElement;
+    };
+    interface HTMLStateEffectChildElement extends Components.StateEffectChild, HTMLStencilElement {
+    }
+    var HTMLStateEffectChildElement: {
+        prototype: HTMLStateEffectChildElement;
+        new (): HTMLStateEffectChildElement;
+    };
     interface HTMLTestChildElement extends Components.TestChild, HTMLStencilElement {
     }
     var HTMLTestChildElement: {
@@ -27,11 +99,38 @@ declare global {
         new (): HTMLTestComponentElement;
     };
     interface HTMLElementTagNameMap {
+        "callbacks-test": HTMLCallbacksTestElement;
+        "domstate-child": HTMLDomstateChildElement;
+        "effect-test": HTMLEffectTestElement;
+        "memo-child": HTMLMemoChildElement;
+        "null-lifecycle-test": HTMLNullLifecycleTestElement;
+        "reducer-child": HTMLReducerChildElement;
+        "ref-child": HTMLRefChildElement;
+        "state-child": HTMLStateChildElement;
+        "state-effect-child": HTMLStateEffectChildElement;
         "test-child": HTMLTestChildElement;
         "test-component": HTMLTestComponentElement;
     }
 }
 declare namespace LocalJSX {
+    interface CallbacksTest {
+    }
+    interface DomstateChild {
+    }
+    interface EffectTest {
+    }
+    interface MemoChild {
+    }
+    interface NullLifecycleTest {
+    }
+    interface ReducerChild {
+    }
+    interface RefChild {
+    }
+    interface StateChild {
+    }
+    interface StateEffectChild {
+    }
     interface TestChild {
     }
     interface TestComponent {
@@ -39,6 +138,15 @@ declare namespace LocalJSX {
         "start"?: number;
     }
     interface IntrinsicElements {
+        "callbacks-test": CallbacksTest;
+        "domstate-child": DomstateChild;
+        "effect-test": EffectTest;
+        "memo-child": MemoChild;
+        "null-lifecycle-test": NullLifecycleTest;
+        "reducer-child": ReducerChild;
+        "ref-child": RefChild;
+        "state-child": StateChild;
+        "state-effect-child": StateEffectChild;
         "test-child": TestChild;
         "test-component": TestComponent;
     }
@@ -47,6 +155,15 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "callbacks-test": LocalJSX.CallbacksTest & JSXBase.HTMLAttributes<HTMLCallbacksTestElement>;
+            "domstate-child": LocalJSX.DomstateChild & JSXBase.HTMLAttributes<HTMLDomstateChildElement>;
+            "effect-test": LocalJSX.EffectTest & JSXBase.HTMLAttributes<HTMLEffectTestElement>;
+            "memo-child": LocalJSX.MemoChild & JSXBase.HTMLAttributes<HTMLMemoChildElement>;
+            "null-lifecycle-test": LocalJSX.NullLifecycleTest & JSXBase.HTMLAttributes<HTMLNullLifecycleTestElement>;
+            "reducer-child": LocalJSX.ReducerChild & JSXBase.HTMLAttributes<HTMLReducerChildElement>;
+            "ref-child": LocalJSX.RefChild & JSXBase.HTMLAttributes<HTMLRefChildElement>;
+            "state-child": LocalJSX.StateChild & JSXBase.HTMLAttributes<HTMLStateChildElement>;
+            "state-effect-child": LocalJSX.StateEffectChild & JSXBase.HTMLAttributes<HTMLStateEffectChildElement>;
             "test-child": LocalJSX.TestChild & JSXBase.HTMLAttributes<HTMLTestChildElement>;
             "test-component": LocalJSX.TestComponent & JSXBase.HTMLAttributes<HTMLTestComponentElement>;
         }
