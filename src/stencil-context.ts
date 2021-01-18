@@ -5,73 +5,14 @@ import { useEffect, useMemo, useReducer, useRef, useState } from 'haunted';
 import debugFactory from 'debug';
 const debug = debugFactory('stencil-hook');
 
-const LISTENER = Symbol('listener');
-
-interface Constructor<T> {
-  new (...args: any[]): T;
-}
-
-type ContextHandler<T, C> = (component: C, context: T) => unknown;
-
 export function createContext<T>(name: string, initial?: T) {
   const raw = rawCreate(name, initial);
-
-  function connectToProps<C>(component: Constructor<C>, handler: ContextHandler<T, C>) {
-    const ComponentPrototype = component.prototype;
-    const { componentWillLoad, disconnectedCallback } = ComponentPrototype;
-
-    ComponentPrototype.componentWillLoad = function () {
-      const element = getElement(this);
-      const onChange = (val: T) => handler(this, val);
-
-      const listener = new raw.Listener({
-        element,
-        onChange,
-        onStatus: st => debug('Context status update', st, element),
-      });
-      this[LISTENER] = listener;
-      listener.start();
-
-      componentWillLoad && componentWillLoad.call(this);
-    };
-    ComponentPrototype.disconnectedCallback = function () {
-      this[LISTENER] && this[LISTENER].stop();
-      disconnectedCallback && disconnectedCallback.call(this);
-    };
-  }
-
-  function provide<C>(component: C, initialState?: T): ContextProvider<T> {
-    const element = getElement(component);
-    const provider = new raw.Provider({
-      element,
-      initialState: initialState,
-    });
-    provider.start();
-    const connectedCallback = component['connectedCallback'];
-    component['connectedCallback'] = function () {
-      provider.start();
-      if (connectedCallback) {
-        connectedCallback.call(component);
-      }
-    };
-
-    const disconnectedCallback = component['disconnectedCallback'];
-    component['disconnectedCallback'] = function () {
-      provider.stop();
-      if (disconnectedCallback) {
-        disconnectedCallback.call(component);
-      }
-    };
-    return provider;
-  }
 
   const useContext = (options?: PollingOpts) => useDomContext<T>(name, options);
   const useContextState = (initialState?: T) => useDomContextState<T>(name, initialState || initial);
 
   const stencil = {
     ...raw,
-    connectToProps,
-    provide,
     useContext,
     useContextState,
   };
@@ -106,21 +47,25 @@ export function useDomContext<T = unknown>(contextName: string, options: Polling
       initialContextValue.current = next;
       setState(next);
     };
-    const listener = new ContextListener({
+    const l = new ContextListener({
       contextName,
       element: host,
       onChange,
       ...options,
     });
-    listener.start();
+    l.start();
+    debug("Listener initialized", l);
     return {
-      listener,
+      listener:l,
     };
   }, [contextName, initialContextValue]);
 
   useEffect(() => {
+
+    debug("Listener starting (or restarting)", listener);
     listener.start();
     return () => {
+      debug("Listener stopping (or restopping)", listener);
       listener.stop();
     };
   }, [listener, host.isConnected]);
@@ -144,16 +89,22 @@ export function useDomContextState<T>(contextName: string, initialState?: T): re
       initialState: initialState,
     });
     p.start();
+    debug("Provider initialized", p);
     return p;
   }, [contextName, host]);
 
   useEffect(() => {
+    debug("Provider starting (or restarting)", provider);
     provider.start();
-    return () => provider.stop();
-  }, [provider]);
+    return () => {
+      debug("Provider stopping (or re-stopping)", provider);
+      provider.stop()
+    }
+  }, [provider, host.isConnected]);
 
   const [value, dispatch] = useReducer<T, T, NewState<T>>((_, next: NewState<T>) => {
     let newValue: T;
+    debug("New context value", next)
     if (typeof next === 'function') {
       newValue = (next as (n: T) => T)(provider.context);
     } else {
