@@ -12,6 +12,10 @@ export namespace Components {
     }
     interface EffectTest {
     }
+    interface InnocentChild {
+    }
+    interface KillerParent {
+    }
     interface MemoChild {
     }
     interface NullLifecycleTest {
@@ -49,6 +53,18 @@ declare global {
     var HTMLEffectTestElement: {
         prototype: HTMLEffectTestElement;
         new (): HTMLEffectTestElement;
+    };
+    interface HTMLInnocentChildElement extends Components.InnocentChild, HTMLStencilElement {
+    }
+    var HTMLInnocentChildElement: {
+        prototype: HTMLInnocentChildElement;
+        new (): HTMLInnocentChildElement;
+    };
+    interface HTMLKillerParentElement extends Components.KillerParent, HTMLStencilElement {
+    }
+    var HTMLKillerParentElement: {
+        prototype: HTMLKillerParentElement;
+        new (): HTMLKillerParentElement;
     };
     interface HTMLMemoChildElement extends Components.MemoChild, HTMLStencilElement {
     }
@@ -102,6 +118,8 @@ declare global {
         "callbacks-test": HTMLCallbacksTestElement;
         "domstate-child": HTMLDomstateChildElement;
         "effect-test": HTMLEffectTestElement;
+        "innocent-child": HTMLInnocentChildElement;
+        "killer-parent": HTMLKillerParentElement;
         "memo-child": HTMLMemoChildElement;
         "null-lifecycle-test": HTMLNullLifecycleTestElement;
         "reducer-child": HTMLReducerChildElement;
@@ -118,6 +136,10 @@ declare namespace LocalJSX {
     interface DomstateChild {
     }
     interface EffectTest {
+    }
+    interface InnocentChild {
+    }
+    interface KillerParent {
     }
     interface MemoChild {
     }
@@ -141,6 +163,8 @@ declare namespace LocalJSX {
         "callbacks-test": CallbacksTest;
         "domstate-child": DomstateChild;
         "effect-test": EffectTest;
+        "innocent-child": InnocentChild;
+        "killer-parent": KillerParent;
         "memo-child": MemoChild;
         "null-lifecycle-test": NullLifecycleTest;
         "reducer-child": ReducerChild;
@@ -158,6 +182,8 @@ declare module "@stencil/core" {
             "callbacks-test": LocalJSX.CallbacksTest & JSXBase.HTMLAttributes<HTMLCallbacksTestElement>;
             "domstate-child": LocalJSX.DomstateChild & JSXBase.HTMLAttributes<HTMLDomstateChildElement>;
             "effect-test": LocalJSX.EffectTest & JSXBase.HTMLAttributes<HTMLEffectTestElement>;
+            "innocent-child": LocalJSX.InnocentChild & JSXBase.HTMLAttributes<HTMLInnocentChildElement>;
+            "killer-parent": LocalJSX.KillerParent & JSXBase.HTMLAttributes<HTMLKillerParentElement>;
             "memo-child": LocalJSX.MemoChild & JSXBase.HTMLAttributes<HTMLMemoChildElement>;
             "null-lifecycle-test": LocalJSX.NullLifecycleTest & JSXBase.HTMLAttributes<HTMLNullLifecycleTestElement>;
             "reducer-child": LocalJSX.ReducerChild & JSXBase.HTMLAttributes<HTMLReducerChildElement>;

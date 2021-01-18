@@ -3,28 +3,27 @@ import { E2EPage, newE2EPage } from '@stencil/core/testing';
 describe('effects', () => {
   it('renders', async () => {
     const page = await newE2EPage();
+    const errorRef = trackErrors(page);
 
     await page.setContent('<test-component></test-component>');
     const element = await page.find('test-component');
     expect(element).toHaveClass('hydrated');
+    expect(errorRef.current).toEqual([]);
   });
 
   it('renders correctly', async () => {
     const page = await newE2EPage();
+    const errorRef = trackErrors(page);
 
     await page.setContent('<test-component></test-component>');
     const component = await page.find('test-component > div');
     expect(component.innerHTML).toEqualHtml(`10`);
+    expect(errorRef.current).toEqual([]);
   });
 
   it('runs effects on load and unload', async () => {
     const page = await newE2EPage();
-
-    // page
-    //   .on('console', message => console.log(`${message.type().substr(0, 3).toUpperCase()} ${message.text()}`))
-    //   .on('pageerror', ({ message }) => console.log(message))
-    //   .on('response', response => console.log(`${response.status()} ${response.url()}`))
-    //   .on('requestfailed', request => console.log(`${request.failure().errorText} ${request.url()}`));
+    const errorRef = trackErrors(page);
 
     await page.setContent('<main><test-component></test-component></main>');
 
@@ -38,12 +37,14 @@ describe('effects', () => {
     await page.waitForChanges();
     const runningAfter = await page.evaluate(() => window['running']);
     expect(runningAfter).toBe(false);
+    expect(errorRef.current).toEqual([]);
   });
 });
 
 describe('withHooks lifecycle', () => {
   it('still calls disconnectedCallback after useEffect cleanups', async () => {
     const page = await newE2EPage();
+    const errorRef = trackErrors(page);
     await page.setContent('<main><effect-test></effect-test></main>');
     const callsAfterRender = await page.evaluate(() => window['lifecycleCalls'].calls.map(a => a[0]));
     const component = await page.find('effect-test');
@@ -56,9 +57,11 @@ describe('withHooks lifecycle', () => {
     });
     const callsAfterCleanp = await page.evaluate(() => window['lifecycleCalls'].calls.map(a => a[0]));
     expect(callsAfterCleanp).toEqual(['connectedCallback', 'render', 'useEffect', 'useEffectCleanup', 'disconnectedCallback']);
+    expect(errorRef.current).toEqual([]);
   });
   it('still calls disconnectedCallback without useEffect cleanup', async () => {
     const page = await newE2EPage();
+    const errorRef = trackErrors(page);
     await page.setContent('<main><null-lifecycle-test></null-lifecycle-test></main>');
     const callsAfterRender = await page.evaluate(() => window['lifecycleCalls'].calls.map(a => a[0]));
     const component = await page.find('null-lifecycle-test');
@@ -71,6 +74,42 @@ describe('withHooks lifecycle', () => {
     });
     const callsAfterCleanp = await page.evaluate(() => window['lifecycleCalls'].calls.map(a => a[0]));
     expect(callsAfterCleanp).toEqual(['connectedCallback', 'render', 'disconnectedCallback']);
+    expect(errorRef.current).toEqual([]);
+  });
+
+  it('lets children run their cleanup tasks', async () => {
+    const page = await newE2EPage();
+    const errorRef = trackErrors(page);
+    await page.setContent('<main><killer-parent></killer-parent></main>');
+    const callsAfterRender = await page.evaluate(() => window['lifecycleCalls'].calls.map(a => a[0]));
+    // const component = await page.find('null-lifecycle-test');
+    // expect(component.innerHTML).toEqualHtml(`<div>true</div>`);
+
+    await page.waitFor(100);
+    expect(errorRef.current).toEqual([]);
+    expect(callsAfterRender).toEqual([
+      // Initial render
+      'parent.render.start',
+      'parent.render.end',
+
+      // First child render
+      'child.render.start',
+      'child.render.end',
+
+      // First useEffect, immediately suicide
+      'child.useEffect.start',
+      'child.useEffect.setState.1',
+      'parent.kill',
+
+      // Cleanup runs right away, followed by inner disconnectedCallack
+      ...['child.useEffect.cleanup', 'child.disconnectedCallback'],
+
+      'child.useEffect.setState.2',
+      'child.useEffect.end',
+
+      // timeout after the event loop finishes (aysnc cleanup)
+      'child.useEffect.timeout',
+    ]);
   });
 });
 
@@ -154,12 +193,6 @@ describe('stencil-context', () => {
 
     const expectTestChild = async val => expect((await page.find('test-child')).innerHTML).toEqualHtml(`<div>${val}</div>`);
 
-    // page
-    //   .on('console', message => console.log(`${message.type().substr(0, 3).toUpperCase()} ${message.text()}`))
-    //   .on('pageerror', ({ message }) => console.log(message))
-    //   .on('response', response => console.log(`${response.status()} ${response.url()}`))
-    //   .on('requestfailed', request => console.log(`${request.failure().errorText} ${request.url()}`));
-
     await page.setContent('<main><test-component><test-child></test-child></test-component></main>');
 
     /*
@@ -194,6 +227,12 @@ describe('stencil-context', () => {
     await expectTestChild(12);
   });
 });
+
+function trackErrors(page: E2EPage) {
+  const ref = new MutableRef<string[]>([]);
+  page.on('pageerror', ({ message }) => (ref.current = [message, ...ref.current]));
+  return ref;
+}
 
 async function testStateFunction(compName: string) {
   const page = await newE2EPage();
@@ -248,4 +287,8 @@ async function expectRenderMockValue(page: E2EPage, ...args: unknown[]) {
 async function expectParentRenderValue(page: E2EPage, val: unknown, name: string = 'test-component') {
   const component = await page.find(name + ' > div');
   expect(component.innerHTML).toEqualHtml(`${val}`);
+}
+
+class MutableRef<T> {
+  constructor(public current: T) {}
 }

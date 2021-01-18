@@ -1,5 +1,6 @@
-import { Component, Prop, h, Host, getElement } from '@stencil/core';
+import { Component, Prop, h, Host } from '@stencil/core';
 import { ContextProvider } from 'dom-context';
+import { createContext } from '../stencil-context';
 import { withHooks, useEffect, useState, useDomContext, useDomContextState, useReducer, useMemo, useRef, useCallback } from '../stencil-hooks';
 import { mockFunction } from './mockFunction';
 
@@ -112,7 +113,7 @@ export class StateEffectChild {
 
     useEffect(() => {
       if (trigger) {
-        setCount(4)
+        setCount(4);
       }
     }, [trigger]);
 
@@ -330,4 +331,85 @@ export class CallbacksTest {
   }
 
   disconnectedCallback() {}
+}
+
+const KillSwitch = createContext<{ kill: () => void }>('parent-child-loop');
+@Component({
+  tag: 'killer-parent',
+})
+export class KillerParent {
+  constructor() {
+    window['lifecycleCalls'] = window['lifecycleCalls'] || mockFunction();
+    withHooks(this);
+  }
+  render() {
+    window['lifecycleCalls']('parent.render.start');
+    const ref = useRef(undefined);
+    const killFn = useCallback(() => {
+      window['lifecycleCalls']('parent.kill');
+      const el = ref.current;
+      el.innerHTML = '';
+    }, []);
+
+    KillSwitch.useContextState({ kill: killFn });
+
+    window['lifecycleCalls']('parent.render.end');
+    return (
+      <Host>
+        <div
+          ref={el => ref.current=el}>
+            <innocent-child></innocent-child>
+          </div>
+      </Host>
+    );
+  }
+
+  disconnectedCallback() {
+    window['lifecycleCalls']('parent.disconnectedCallback');
+  }
+}
+
+@Component({
+  tag: 'innocent-child',
+})
+export class InnocentChild {
+  constructor() {
+    window['lifecycleCalls'] = window['lifecycleCalls'] || mockFunction();
+    withHooks(this);
+  }
+  render() {
+    window['lifecycleCalls']('child.render.start');
+    const doKill = KillSwitch.useContext();
+    const ref = useRef('child');
+    const [state, setState] = useState(0);
+    useEffect(() => {
+      return () => {
+        window['lifecycleCalls'](ref.current + '.useEffect.cleanup');
+        setTimeout(() => {
+          window['lifecycleCalls'](ref.current + '.useEffect.timeout');
+        }, 0);
+      };
+    }, []);
+
+    useEffect(() => {
+      window['lifecycleCalls'](ref.current + '.useEffect.start');
+      window['lifecycleCalls'](ref.current + '.useEffect.setState.1');
+      setState(1);
+      doKill && doKill.kill();
+      window['lifecycleCalls'](ref.current + '.useEffect.setState.2');
+      setState(2);
+      window['lifecycleCalls'](ref.current + '.useEffect.end');
+    }, []);
+
+    window['lifecycleCalls'](ref.current + '.render.end');
+    return (
+      <Host>
+        <div>{ref.current} and {state}</div>
+      </Host>
+    );
+  }
+
+  disconnectedCallback() {
+    window['lifecycleCalls']('child.disconnectedCallback');
+  }
 }
