@@ -119,10 +119,11 @@ export function useDomContext<T = unknown>(contextName: string, options: Polling
   }, [contextName, initialContextValue]);
 
   useEffect(() => {
+    listener.start();
     return () => {
       listener.stop();
     };
-  }, [listener]);
+  }, [listener, host.isConnected]);
 
   return state || initialContextValue.current;
 }
@@ -137,11 +138,13 @@ export function useDomContextState<T>(contextName: string, initialState?: T): re
   const host = useHost();
 
   const provider = useMemo(() => {
-    return new ContextProvider({
+    const p = new ContextProvider({
       contextName: contextName,
       element: host,
       initialState: initialState,
     });
+    p.start();
+    return p;
   }, [contextName, host]);
 
   useEffect(() => {
