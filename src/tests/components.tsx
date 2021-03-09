@@ -2,7 +2,10 @@ import { Component, Prop, h, Host } from '@stencil/core';
 import { ContextProvider } from 'dom-context';
 import { createContext } from '../stencil-context';
 import { withHooks, useEffect, useState, useDomContext, useDomContextState, useReducer, useMemo, useRef, useCallback } from '../stencil-hooks';
+import * as HooksAPI from '../stencil-hooks';
 import { mockFunction } from './mockFunction';
+import { setImplementation } from '@saasquatch/universal-hooks';
+setImplementation(HooksAPI);
 
 @Component({
   tag: 'test-component',
@@ -356,10 +359,9 @@ export class KillerParent {
     window['lifecycleCalls']('parent.render.end');
     return (
       <Host>
-        <div
-          ref={el => ref.current=el}>
-            <innocent-child></innocent-child>
-          </div>
+        <div ref={el => (ref.current = el)}>
+          <innocent-child></innocent-child>
+        </div>
       </Host>
     );
   }
@@ -404,7 +406,9 @@ export class InnocentChild {
     window['lifecycleCalls'](ref.current + '.render.end');
     return (
       <Host>
-        <div>{ref.current} and {state}</div>
+        <div>
+          {ref.current} and {state}
+        </div>
       </Host>
     );
   }
