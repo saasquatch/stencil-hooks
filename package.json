@@ -10,6 +10,7 @@
   "files": [
     "build"
   ],
+  "sideEffects": true,
   "scripts": {
     "build": "microbundle",
     "start": "stencil build --dev --watch --serve",
@@ -18,6 +19,7 @@
     "generate": "stencil generate"
   },
   "dependencies": {
+    "@saasquatch/dom-context-hooks": "^0.1.0",
     "@stencil/core": "^1.17.4",
     "debug": "^4.3.1",
     "dom-context": "^1.0.1",

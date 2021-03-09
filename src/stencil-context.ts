@@ -1,12 +1,10 @@
 import { getElement, getRenderingRef } from '@stencil/core';
 import { HTMLStencilElement } from '@stencil/core/internal';
-import { createContext as rawCreate, ContextProvider, ContextListener, ListenerOptions } from 'dom-context';
-import { useEffect, useMemo, useReducer, useRef, useState } from 'haunted';
-import debugFactory from 'debug';
-const debug = debugFactory('stencil-hook');
+import * as DOMHook from '@saasquatch/dom-context-hooks';
+import { ContextProvider, ListenerOptions } from 'dom-context';
 
 export function createContext<T>(name: string, initial?: T) {
-  const raw = rawCreate(name, initial);
+  const raw = DOMHook.createContext(name, initial);
 
   const useContext = (options?: PollingOpts) => useDomContext<T>(name, options);
   const useContextState = (initialState?: T) => useDomContextState<T>(name, initialState || initial);
@@ -39,38 +37,7 @@ type PollingOpts<T = unknown> = Omit<ListenerOptions<T>, 'contextName' | 'elemen
  */
 export function useDomContext<T = unknown>(contextName: string, options: PollingOpts = {}): T | undefined {
   const host = useHost();
-  const initialContextValue = useRef(undefined);
-  const [state, setState] = useState(undefined);
-
-  const { listener } = useMemo(() => {
-    const onChange = (next: T) => {
-      initialContextValue.current = next;
-      setState(next);
-    };
-    const l = new ContextListener({
-      contextName,
-      element: host,
-      onChange,
-      ...options,
-    });
-    l.start();
-    debug("Listener initialized", l);
-    return {
-      listener:l,
-    };
-  }, [contextName, initialContextValue]);
-
-  useEffect(() => {
-
-    debug("Listener starting (or restarting)", listener);
-    listener.start();
-    return () => {
-      debug("Listener stopping (or restopping)", listener);
-      listener.stop();
-    };
-  }, [listener, host.isConnected]);
-
-  return state || initialContextValue.current;
+  return DOMHook.useDomContext(host, contextName, options);
 }
 
 type NewState<T> = T | ((previousState?: T) => T);
@@ -81,38 +48,5 @@ type StateUpdater<T> = (value: NewState<T>) => void;
  */
 export function useDomContextState<T>(contextName: string, initialState?: T): readonly [T, StateUpdater<T>, ContextProvider<T>] {
   const host = useHost();
-
-  const provider = useMemo(() => {
-    const p = new ContextProvider({
-      contextName: contextName,
-      element: host,
-      initialState: initialState,
-    });
-    p.start();
-    debug("Provider initialized", p);
-    return p;
-  }, [contextName, host]);
-
-  useEffect(() => {
-    debug("Provider starting (or restarting)", provider);
-    provider.start();
-    return () => {
-      debug("Provider stopping (or re-stopping)", provider);
-      provider.stop()
-    }
-  }, [provider, host.isConnected]);
-
-  const [value, dispatch] = useReducer<T, T, NewState<T>>((_, next: NewState<T>) => {
-    let newValue: T;
-    debug("New context value", next)
-    if (typeof next === 'function') {
-      newValue = (next as (n: T) => T)(provider.context);
-    } else {
-      newValue = next;
-    }
-    provider.context = newValue;
-    return provider.context;
-  }, provider.context);
-
-  return [value, dispatch, provider];
+  return DOMHook.useDomContextState(host, contextName, initialState);
 }
