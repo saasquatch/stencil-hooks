@@ -1,6 +1,6 @@
 {
   "name": "@saasquatch/stencil-hooks",
-  "version": "1.0.1",
+  "version": "2.0.1",
   "description": "Stencil Component Starter",
   "source": "src/stencil-hooks.ts",
   "main": "build/stencil-hooks.js",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@saasquatch/dom-context-hooks": "^0.1.0",
-    "@stencil/core": "^1.17.4",
+    "@stencil/core": "^2",
     "debug": "^4.3.1",
     "dom-context": "^1.0.1",
     "haunted": "^4.7.1"
