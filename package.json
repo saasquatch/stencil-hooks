@@ -1,6 +1,6 @@
 {
   "name": "@saasquatch/stencil-hooks",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Stencil Component Starter",
   "source": "src/stencil-hooks.ts",
   "main": "build/stencil-hooks.js",
@@ -19,10 +19,10 @@
     "generate": "stencil generate"
   },
   "dependencies": {
-    "@saasquatch/dom-context-hooks": "^0.1.0",
+    "@saasquatch/dom-context-hooks": "^1.0.0",
     "@stencil/core": "^2",
     "debug": "^4.3.1",
-    "dom-context": "^1.0.1",
+    "dom-context": "^1.2.0",
     "haunted": "^4.7.1"
   },
   "license": "MIT",
