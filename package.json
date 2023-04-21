@@ -1,6 +1,6 @@
 {
   "name": "@saasquatch/stencil-hooks",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Stencil Component Starter",
   "source": "src/stencil-hooks.ts",
   "main": "build/stencil-hooks.js",
@@ -26,6 +26,7 @@
     "haunted": "^4.7.1"
   },
   "license": "MIT",
+  "author": "ReferralSaaSquatch.com, Inc.",
   "devDependencies": {
     "@types/puppeteer": "2.0.1",
     "jest-cli": "26.0.1",
