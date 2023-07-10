@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@saasquatch/dom-context-hooks": "^1.0.0",
-    "@stencil/core": "^3.4.1",
+    "@stencil/core": "^3",
     "debug": "^4.3.1",
     "dom-context": "^1.2.0",
     "haunted": "^4.7.1"
