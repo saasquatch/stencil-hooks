@@ -20,7 +20,6 @@
   },
   "dependencies": {
     "@saasquatch/dom-context-hooks": "^1.0.0",
-    "@stencil/core": "^2",
     "debug": "^4.3.1",
     "dom-context": "^1.2.0",
     "haunted": "^4.7.1"
@@ -28,10 +27,14 @@
   "license": "MIT",
   "author": "ReferralSaaSquatch.com, Inc.",
   "devDependencies": {
+    "@stencil/core": "^4",
     "@types/puppeteer": "2.0.1",
     "jest-cli": "26.0.1",
     "jest-cucumber": "^3.0.0",
     "microbundle": "^0.12.4",
     "puppeteer": "2.1.1"
+  },
+  "peerDependencies": {
+    "@stencil/core": ">= 4 < 5"
   }
 }
