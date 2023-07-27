@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2023-07-27
+### Updated
+
+- `@stencil/core` updated to support versions of Stencil >= 3.0.0
+
 ## [2.0.4] - 2023-07-27
+### Updated
 
 - `@stencil/core` moved to devDependencies
 - peerDependencies added for @stencil/core < 3
@@ -58,7 +64,8 @@ No release notes.
 
 No release notes.
 
-[unreleased]: https://github.com/saasquatch/stencil-hooks/compare/@saasquatch%2Fstencil-hooks@2.0.4...HEAD
+[unreleased]: https://github.com/saasquatch/stencil-hooks/compare/@saasquatch%2Fstencil-hooks@3.0.0...HEAD
+[3.0.0]: https://github.com/saasquatch/stencil-hooks/releases/tag/%40saasquatch%2Fstencil-hooks%403.0.0
 [2.0.4]: https://github.com/saasquatch/stencil-hooks/releases/tag/%40saasquatch%2Fstencil-hooks%402.0.4
 [2.0.3]: https://github.com/saasquatch/stencil-hooks/releases/tag/%40saasquatch%2Fstencil-hooks%402.0.3
 [2.0.2]: https://github.com/saasquatch/stencil-hooks/releases/tag/%40saasquatch%2Fstencil-hooks%402.0.2
