@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.1] - 2024-05-30
+### Updated
+
+- `@saasquatch/dom-context-hooks` package bump
+
 ## [4.0.0] - 2023-07-27
 ### Updated
 
@@ -70,7 +75,8 @@ No release notes.
 
 No release notes.
 
-[unreleased]: https://github.com/saasquatch/stencil-hooks/compare/@saasquatch%2Fstencil-hooks@4.0.0...HEAD
+[unreleased]: https://github.com/saasquatch/stencil-hooks/compare/@saasquatch%2Fstencil-hooks@4.0.1...HEAD
+[4.0.1]: https://github.com/saasquatch/stencil-hooks/releases/tag/%40saasquatch%2Fstencil-hooks%404.0.1
 [4.0.0]: https://github.com/saasquatch/stencil-hooks/releases/tag/%40saasquatch%2Fstencil-hooks%404.0.0
 [3.0.0]: https://github.com/saasquatch/stencil-hooks/releases/tag/%40saasquatch%2Fstencil-hooks%403.0.0
 [2.0.4]: https://github.com/saasquatch/stencil-hooks/releases/tag/%40saasquatch%2Fstencil-hooks%402.0.4
