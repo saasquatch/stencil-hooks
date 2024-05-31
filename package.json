@@ -19,9 +19,9 @@
     "generate": "stencil generate"
   },
   "dependencies": {
-    "@saasquatch/dom-context-hooks": "^1.0.4",
+    "@saasquatch/dom-context-hooks": "^1.0.5",
     "debug": "^4.3.1",
-    "dom-context": "^1.3.0",
+    "dom-context": "^1.3.1",
     "haunted": "^4.7.1"
   },
   "license": "MIT",
